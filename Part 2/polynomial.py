@@ -8,6 +8,12 @@ class X:
     def simplify(self):
         return self
 
+    def evaluate(self, i):
+        return Int(i)
+
+    def max_degree(self):
+        return 1
+
 
 class Int:
     def __init__(self, i):
@@ -18,6 +24,12 @@ class Int:
 
     def simplify(self):
         return self
+    
+    def evaluate(self, i):
+        return self
+    
+    def max_degree(self):
+        return 0
 
 
 class Mul:
@@ -63,6 +75,16 @@ class Mul:
                     return Mul(Int(simp2.i * simp1.p2.i), simp2.p1.simplify())
         return Mul(simp1, simp2)
 
+    def evaluate(self, i):
+        simp1 = self.p1.simplify()
+        simp2 = self.p2.simplify()
+        return Mul(simp1.evaluate(i), simp2.evaluate(i)).simplify()
+    
+    def max_degree(self):
+        simp1 = self.p1.simplify()
+        simp2 = self.p2.simplify()
+        return simp1.max_degree() + simp2.max_degree()
+
 
 class Add:
     def __init__(self, p1, p2):
@@ -87,8 +109,40 @@ class Add:
                 return Int(simp1.i + simp2.i)
         return Add(simp1, simp2)
 
+    def evaluate(self, i):
+        simp1 = self.p1.simplify()
+        simp2 = self.p2.simplify()
+        return Add(simp1.evaluate(i), simp2.evaluate(i)).simplify()
 
-poly = Add( Add( Int(4), Int(3)), Add( X(), Mul( Int(0), Add( Mul(X(), X()), Int(1)))))
+    def max_degree(self):
+        simp1 = self.p1.simplify()
+        simp2 = self.p2.simplify()
+        return max([simp1.max_degree(), simp2.max_degree()])
+
+
+def equals(p1, p2):
+    d1 = p1.max_degree()
+    d2 = p2.max_degree()
+
+    if d1 != d2:
+        return False
+    
+    if d1 == 0:
+        simp1 = p1.simplify()
+        simp2 = p2.simplify()
+        if isinstance(simp1, Int) and isinstance(simp2, Int):
+            return simp1.i == simp2.i
+        # We have a problem...
+        raise ValueError
+    
+    new_p1 = Sub(p1, Pow(X(), d1))
+    new_p2 = Sub(p2, Pow(X(), d2))
+    return equals(new_p1, new_p2)
+
+
+poly = Add( Add( Int(4), Int(3)), Add( X(), Mul( Int(1), Add( Mul(X(), X()), Int(1)))))
 print(repr(poly))
-# print(repr(poly.simplify()))
+print(repr(poly.simplify()))
+print(poly.evaluate(-1))
+print(poly.max_degree())
 
