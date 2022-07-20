@@ -65,7 +65,6 @@ class Pow:
             
             if isinstance(simp1, Int):
                 return Int(simp1.i ** simp2.i)
-            # Need to Review
             if isinstance(simp1, Pow):
                 if isinstance(simp1.p1, Int):
                     return Pow(Int(simp1.p1.i ** simp2.i), simp2.p2.simplify())
@@ -108,8 +107,6 @@ class Int:
 
     def simplify(self):
         return self
-
-
 class Mul:
     def __init__(self, p1, p2):
         self.p1 = p1
@@ -129,6 +126,19 @@ class Mul:
     def simplify(self):
         simp1 = self.p1.simplify()
         simp2 = self.p2.simplify()
+        if isinstance(simp1, Pow):
+            if isinstance(simp2, Pow):
+                e1=simp1.p1
+                e2=simp1.p2
+                o1=simp2.p1
+                o2=simp2.p2              
+                if repr(e1)==repr(o1):
+                    if isinstance(e2, Int):
+                        if isinstance(o2, Int):
+                            return Pow(e1,Int(e2.i+o2.i))
+                    if isinstance(e2, X):
+                        if isinstance(o2, X):
+                            return Pow(e1,Mul(Int(2),X()))
         if isinstance(simp1, Int):
             if simp1.i == 0:
                 return Int(0)
@@ -145,6 +155,13 @@ class Mul:
                 
                 if isinstance(simp2.p2, Int):
                     return Mul(Int(simp1.i * simp2.p2.i), simp2.p1.simplify())
+            if isinstance(simp2, Add):
+                e1=simp2.p1
+                e2=simp2.p2
+                if isinstance(e1, Int):
+                    return Add(Int(e1.i*simp1.i),Mul(simp1,e2))
+                if isinstance(e2, Int):
+                    return Add(Int(e2.i*simp1.i),Mul(simp1,e1))
         if isinstance(simp2, Int):
             if simp2.i == 0:
                 return Int(0)
@@ -158,9 +175,15 @@ class Mul:
             if isinstance(simp1, Mul):
                 if isinstance(simp1.p1, Int):
                     return Mul(Int(simp2.i * simp1.p1.i), simp2.p2.simplify())
-                
                 if isinstance(simp1.p2, Int):
                     return Mul(Int(simp2.i * simp1.p2.i), simp2.p1.simplify())
+            if isinstance(simp1, Add):
+                e1=simp1.p1
+                e2=simp1.p2
+                if isinstance(e1, Int):
+                    return Add(Int(e1.i*simp2.i),Mul(simp2,e2))
+                if isinstance(e2, Int):
+                    return Add(Int(e2.i*simp2.i),Mul(simp2,e1))
         return Mul(simp1, simp2)
 class Div:
     def __init__(self, p1, p2):
@@ -223,6 +246,8 @@ class Add:
         return repr(self.p1) + " + " + repr(self.p2)
 
     def simplify(self):
+        #print(self.p1)
+        #print(self.p2)
         simp1 = self.p1.simplify()
         simp2 = self.p2.simplify()
         
@@ -239,7 +264,62 @@ class Add:
             
             if isinstance(simp1, Int):
                 return Int(simp1.i + simp2.i)
-            
+        if isinstance(simp1, X):
+            if isinstance(simp2, X):
+                return Mul(Int(2),X()).simplify()
+        if isinstance(simp1, Add):
+            e1=simp1.p1
+            e2=simp1.p2
+            if isinstance(simp2, Int):
+                if isinstance(e1, Int):
+                    return Add(e2, Int(simp2+e1)).simplify()
+                if isinstance(e2, Int):
+                    return Add(e1, Int(simp2+e2)).simplify()
+            if isinstance(simp2, X):
+                if isinstance(e1, X):
+                    return Add(e2, Mul(Int(2),X()).simplify()).simplify()
+                if isinstance(e2, X):
+                    return Add(e1, Mul(Int(2),X()).simplify()).simplify()
+            if isinstance(simp2,Add):
+                o1=simp2.p1
+                o2=simp2.p2
+                if isinstance(e1, Int):
+                    if isinstance(o1, Int):
+                        return Add(Int(e1.i+o1.i), Add(o2,e2).simplify()).simplify()
+                    if isinstance(o2, Int):
+                        return Add(Int(e1.i+o2.i), Add(o1,e2).simplify()).simplify()
+                if isinstance(e2, Int):
+                    if isinstance(o1, Int):
+                        return Add(Int(e2.i+o1.i), Add(o2,e1).simplify()).simplify()
+                    if isinstance(o2, Int):
+                        #print(o1)
+                        #print(e1)
+                        r=Add(o1,e1).simplify()
+                        #print(1)
+                        return Add(Int(e2.i+o2.i), r).simplify()
+                if isinstance(e1, X):
+                    if isinstance(o1, X):
+                        return Add(Mul(Int(2),X()).simplify(), Add(o2,e2).simplify()).simplify()
+                    if isinstance(o2, X):
+                        return Add(Mul(Int(2),X()).simplify(), Add(o1,e2).simplify()).simplify()
+                if isinstance(e2, X):
+                    if isinstance(o1, X):
+                        return Add(Mul(Int(2),X()).simplify(), Add(o2,e1).simplify()).simplify()
+                    if isinstance(o2, X):
+                        return Add(Mul(Int(2),X()).simplify(), Add(o1,e1).simplify()).simplify()
+        if isinstance(simp2, Add):
+            e1=simp2.p1
+            e2=simp2.p2
+            if isinstance(simp1, Int):
+                if isinstance(e1, Int):
+                    return Add(e2, Int(simp1+e1)).simplify()
+                if isinstance(e2, Int):
+                    return Add(e1, Int(simp1+e2)).simplify()
+            if isinstance(simp1, X):
+                if isinstance(e1, X):
+                    return Add(e2, Mul(Int(2),X()).simplify()).simplify()
+                if isinstance(e2, X):
+                    return Add(e1, Mul(Int(2),X()).simplify()).simplify()
         return Add(simp1, simp2)
 class Sub:
     def __init__(self, p1, p2):
@@ -251,19 +331,8 @@ class Sub:
     def simplify(self):
         simp1 = self.p1.simplify()
         simp2 = self.p2.simplify()
-        if isinstance(simp1, Int):
-            if simp1.i == 0:
-                return Neg.simplify(simp2)
-            
-            if isinstance(simp2, Int):
-                return Int(simp1.i - simp2.i)
-        if isinstance(simp2, Int):
-            if simp2.i == 0:
-                return simp1
-            
-            if isinstance(simp1, Int):
-                return Int(simp1.i - simp2.i)
-        return Sub(simp1, simp2)
+        
+        return Add(simp1, Neg(simp2).simplify()).simplify()
 
 #poly = Sub( Add( Int(4), Int(3)), Add( X(), Div( Int(0), Add( Sub(X(), X()), Int(1)))))
 # e1=Mul(Int(7),(Mul(X(),Mul(X(),X()))))
@@ -275,5 +344,6 @@ class Sub:
 #print(repr(poly))
 #print(repr(poly.simplify()))
 #poly4=Sub(Int(0),X())
-poly5 = Div(Int(1), Int(0))
+#poly5 = Add(X(), Sub(Add( X(), Int(7)), Add( X(), Int(9))))
+poly5 = Mul(Pow(X(),Int(2)),Pow(X(),Int(3)))
 print(repr(poly5.simplify()))
