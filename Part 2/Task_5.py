@@ -255,7 +255,6 @@ class Div:
         simp1 = self.p1.simplify()
         simp2 = self.p2.simplify()
         return Div(simp1.evaluate(i), simp2.evaluate(i)).simplify()
-# TODO combining like terms
 class Add:
     def __init__(self, p1, p2):
         self.p1 = p1
@@ -289,11 +288,83 @@ class Add:
         if isinstance(simp1, Add):
             e1=simp1.p1
             e2=simp1.p2
+            if isinstance(simp2, Mul):
+                simp1=e1
+                e1a=simp2.p1
+                e2a=simp2.p2
+                if isinstance(simp1, Mul):
+                    o1=simp1.p1
+                    o2=simp1.p2
+                    #print(e1a,e2a,o1,o2)
+                    if isinstance(e1a, Pow):
+                        if isinstance(o1, Pow):
+                            if isinstance(o2, Int):
+                                if isinstance(e2a, Int):
+                                    if e1a==o1:
+                                        return Add(Mul(Int(o2.i+e2a.i),e1a).simplify(),e2).simplify()
+                        if isinstance(o2, Pow):
+                            if isinstance(o1, Int):
+                                if isinstance(e2, Int):
+                                    if e1a==o2:
+                                        return Add(Mul(Int(o1.i+e2a.i),e1a).simplify(),e2).simplify()
+                    if isinstance(e2a, Pow):
+                        if isinstance(o1, Pow):
+                            if isinstance(o2, Int):
+                                if isinstance(e2a, Int):
+                                    if e2a==o1:
+                                        return Add(Mul(Int(o2.i+e1a.i),e2a).simplify(),e2).simplify()
+                        if isinstance(o2, Pow):
+                            if isinstance(o1, Int):
+                                if isinstance(e1a, Int):
+                                    #print("a")
+                                    if repr(e2a)==repr(o2):
+                                        #print("b")
+                                        #print(e2)
+                                        #print(Mul(Int(o1.i+e1a.i),e2).simplify())
+                                        return Add(Mul(Int(o1.i+e1a.i),e2a).simplify(),e2).simplify()
+                if isinstance(e1, Pow):
+                    o1=e1.p1
+                    o2=e1.p2
+                    if isinstance(e2a, Pow):
+                        t1=e2a.p1
+                        t2=e2a.p2
+                        if repr(o1)==repr(t1):
+                            if repr(o2)==repr(t2):
+                                return Add(Mul(Int(1+e1a.i),e1).simplify(), e2).simplify()
+            if isinstance(simp2, Mul):
+                simp1=e2
+                e1a=simp2.p1
+                e2a=simp2.p2
+                if isinstance(simp1, Mul):
+                    o1=simp1.p1
+                    o2=simp1.p2
+                    if isinstance(e1a, Pow):
+                        if isinstance(o1, Pow):
+                            if isinstance(o2, Int):
+                                if isinstance(e2a, Int):
+                                    if e1a==o1:
+                                        return Add(Mul(Int(o2.i+e2a.i),e1a).simplify(),e1).simplify()
+                        if isinstance(o2, Pow):
+                            if isinstance(o1, Int):
+                                if isinstance(e2a, Int):
+                                    if e1==o2:
+                                        return Add(Mul(Int(o1.i+e2a.i),e1a).simplify(),e1).simplify()
+                    if isinstance(e2a, Pow):
+                        if isinstance(o1, Pow):
+                            if isinstance(o2, Int):
+                                if isinstance(e2a, Int):
+                                    if e2a==o1:
+                                        return Add(Mul(Int(o2.i+e1a.i),e2a).simplify(),e1).simplify()
+                        if isinstance(o2, Pow):
+                            if isinstance(o1, Int):
+                                if isinstance(e2a, Int):
+                                    if e2a==o2:
+                                        return Add(Mul(Int(o1.i+e1a.i),e2a).simplify(),e1).simplify()
             if isinstance(simp2, Int):
                 if isinstance(e1, Int):
-                    return Add(e2, Int(simp2+e1)).simplify()
+                    return Add(e2, Int(simp2.i+e1.i)).simplify()
                 if isinstance(e2, Int):
-                    return Add(e1, Int(simp2+e2)).simplify()
+                    return Add(e1, Int(simp2.i+e2.i)).simplify()
             if isinstance(simp2, X):
                 if isinstance(e1, X):
                     return Add(e2, Mul(Int(2),X()).simplify()).simplify()
@@ -329,6 +400,64 @@ class Add:
         if isinstance(simp2, Add):
             e1=simp2.p1
             e2=simp2.p2
+            if isinstance(simp1, Mul):
+                simp2=e1
+                e1a=simp2.p1
+                e2a=simp2.p2
+                if isinstance(simp2, Mul):
+                    o1=simp1.p1
+                    o2=simp1.p2
+                    if isinstance(e1a, Pow):
+                        if isinstance(o1, Pow):
+                            if isinstance(o2, Int):
+                                if isinstance(e2a, Int):
+                                    if e1a==o1:
+                                        return Add(Mul(Int(o2.i+e2a.i),e1a).simplify(),e2).simplify()
+                        if isinstance(o2, Pow):
+                            if isinstance(o1, Int):
+                                if isinstance(e2a, Int):
+                                    if e1a==o2:
+                                        return Add(Mul(Int(o1.i+e2a.i),e1a).simplify(),e2).simplify()
+                    if isinstance(e2a, Pow):
+                        if isinstance(o1, Pow):
+                            if isinstance(o2, Int):
+                                if isinstance(e2a, Int):
+                                    if e2a==o1:
+                                        return Add(Mul(Int(o2.i+e1a.i),e2a).simplify(),e2).simplify()
+                        if isinstance(o2, Pow):
+                            if isinstance(o1, Int):
+                                if isinstance(e2a, Int):
+                                    if e2a==o2:
+                                        return Add(Mul(Int(o1.i+e1a.i),e2a).simplify(),e2).simplify()
+            if isinstance(simp1, Mul):
+                simp2=e2
+                e1a=simp2.p1
+                e2a=simp2.p2
+                if isinstance(simp2, Mul):
+                    o1=simp1.p1
+                    o2=simp1.p2
+                    if isinstance(e1a, Pow):
+                        if isinstance(o1, Pow):
+                            if isinstance(o2, Int):
+                                if isinstance(e2a, Int):
+                                    if e1a==o1:
+                                        return Add(Mul(Int(o2.i+e2a.i),e1a).simplify(),e1).simplify()
+                        if isinstance(o2, Pow):
+                            if isinstance(o1, Int):
+                                if isinstance(e2a, Int):
+                                    if e1a==o2:
+                                        return Add(Mul(Int(o1.i+e2a.i),e1a).simplify(),e1).simplify()
+                    if isinstance(e2a, Pow):
+                        if isinstance(o1, Pow):
+                            if isinstance(o2, Int):
+                                if isinstance(e1a, Int):
+                                    if e2a==o1:
+                                        return Add(Mul(Int(o2.i+e1a.i),e2a).simplify(),e1).simplify()
+                        if isinstance(o2, Pow):
+                            if isinstance(o1, Int):
+                                if isinstance(e1a, Int):
+                                    if e2a==o2:
+                                        return Add(Mul(Int(o1.i+e1a.i),e2a).simplify(),e1).simplify()
             if isinstance(simp1, Int):
                 if isinstance(e1, Int):
                     return Add(e2, Int(simp1+e1)).simplify()
@@ -339,12 +468,39 @@ class Add:
                     return Add(e2, Mul(Int(2),X()).simplify()).simplify()
                 if isinstance(e2, X):
                     return Add(e1, Mul(Int(2),X()).simplify()).simplify()
+        if isinstance(simp2, Mul):
+            e1=simp2.p1
+            e2=simp2.p2
+            if isinstance(simp1, Mul) :
+                o1=simp1.p1
+                o2=simp1.p2
+                if isinstance(e1, Pow):
+                    if isinstance(o1, Pow):
+                        if isinstance(o2, Int):
+                            if isinstance(e2, Int):
+                                if e1==o1:
+                                    return Mul(Int(o2.i+e2.i),e1).simplify()
+                    if isinstance(o2, Pow):
+                        if isinstance(o1, Int):
+                            if isinstance(e2, Int):
+                                if e1==o2:
+                                    return Mul(Int(o1.i+e2.i),e1).simplify()
+                if isinstance(e2, Pow):
+                    if isinstance(o1, Pow):
+                        if isinstance(o2, Int):
+                            if isinstance(e2, Int):
+                                if e2==o1:
+                                    return Mul(Int(o2.i+e1.i),e2).simplify()
+                    if isinstance(o2, Pow):
+                        if isinstance(o1, Int):
+                            if isinstance(e2, Int):
+                                if e2==o2:
+                                    return Mul(Int(o1.i+e1.i),e2).simplify()
         return Add(simp1, simp2)
     def evaluate(self, i):
         simp1 = self.p1.simplify()
         simp2 = self.p2.simplify()
         return Add(simp1.evaluate(i), simp2.evaluate(i)).simplify()
-# TODO combine like terms
 class Sub:
     def __init__(self, p1, p2):
         self.p1 = p1
@@ -372,4 +528,4 @@ class Sub:
 #print(repr(poly.simplify()))
 #poly4=Sub(Int(0),X())
 poly5 = Add(Add( X(), Int(7)), Add( X(), Int(9)))
-print(repr(poly5.simplify()))
+print(repr(poly5.evaluate(4)))
