@@ -149,7 +149,7 @@ class Mul:
                 e2=simp1.p2
                 o1=simp2.p1
                 o2=simp2.p2              
-                if repr(e1)==repr(o1):
+                if (isinstance(e1, Int) and isinstance(o1, Int)) or (isinstance(e1, X) and isinstance(o1, X)):
                     if isinstance(e2, Int):
                         if isinstance(o2, Int):
                             return Pow(e1,Int(e2.i+o2.i))
@@ -352,19 +352,20 @@ class Add:
                             if isinstance(o1, Int):
                                 if isinstance(e1a, Int):
                                     #print("a")
-                                    if repr(e2a)==repr(o2):
+                                    if (isinstance(e2a, Int) and isinstance(o2, Int)) or (isinstance(e2a, X) and isinstance(o2, X)):
                                         #print("b")
                                         #print(e2)
                                         #print(Mul(Int(o1.i+e1a.i),e2).simplify())
                                         return Add(Mul(Int(o1.i+e1a.i),e2a).simplify(),e2).simplify()
+                
                 if isinstance(e1, Pow):
                     o1=e1.p1
                     o2=e1.p2
                     if isinstance(e2a, Pow):
                         t1=e2a.p1
                         t2=e2a.p2
-                        if repr(o1)==repr(t1):
-                            if repr(o2)==repr(t2):
+                        if (isinstance(t1, Int) and isinstance(o1, Int)) or (isinstance(t1, X) and isinstance(o1, X)):
+                            if (isinstance(t2, Int) and isinstance(o2, Int)) or (isinstance(t2, X) and isinstance(o2, X)):
                                 return Add(Mul(Int(1+e1a.i),e1).simplify(), e2).simplify()
             if isinstance(simp2, Mul):
                 simp1=e2
@@ -594,5 +595,8 @@ def equals(p1, p2):
 # poly6 = Add(Mul( X(), Mul( X(), Int(9))),Int(4)).simplify()
 poly5 = Sub(Add(Mul( X(), Mul( X(), Int(9))),Int(4)),Int(-1))
 poly6 = Add(Mul( X(), Mul( X(), Int(9))),Int(5))
-#print(repr(poly6.simplify()))
-print(equals(poly5.simplify(), poly6.simplify()))
+poly7= Add(Mul(X(), X()),Int(10))
+poly8 = Add(Add(Pow(X(), Int(2)), Int(4)), Int(6))
+print(repr(poly7))
+print(repr(poly8))
+print(equals(poly7, poly8))
